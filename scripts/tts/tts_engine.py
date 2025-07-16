@@ -1,7 +1,6 @@
 import pyttsx3
 
 def speak(text: str):
-    print(f"[DEBUG] Speaking: {text}")
     try:
         # ✅ Re-initialize engine every time
         engine = pyttsx3.init(driverName='sapi5')
