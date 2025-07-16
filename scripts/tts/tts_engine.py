@@ -1,17 +1,20 @@
 import pyttsx3
 
-engine = pyttsx3.init()
-engine.setProperty('rate', 180)     # Speed of speech
-engine.setProperty('volume', 1.0)   # Full volume
-
-# Optional: Set voice (Windows usually has 0 = male, 1 = female)
-voices = engine.getProperty('voices')
-if len(voices) > 1:
-    engine.setProperty('voice', voices[0].id)  # Try male voice
-
 def speak(text: str):
+    print(f"[DEBUG] Speaking: {text}")
     try:
+        # ✅ Re-initialize engine every time
+        engine = pyttsx3.init(driverName='sapi5')
+        engine.setProperty('rate', 180)
+        engine.setProperty('volume', 1.0)
+
+        voices = engine.getProperty('voices')
+        engine.setProperty('voice', voices[0].id if len(voices) > 0 else '')
+
         engine.say(text)
         engine.runAndWait()
+        print("[Buddy Is Finished Speaking]")
+        engine.stop()
+
     except Exception as e:
         print(f"[TTS Error] {e}")
