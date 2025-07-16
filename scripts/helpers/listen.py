@@ -14,10 +14,10 @@ def listen_for_command(timeout=10):
 
     def callback(indata, frames, time, status):
         if status:
-            print("[VOSK Error]:", status, file=sys.stderr)
+            print("[VOSK Error]:", status, file=sys.stderr, flush=True)
         q.put(bytes(indata))
 
-    print("[🎤 Listening for your command...]")
+    print("[🎤 Listening for your command...]", flush=True)
 
     start_time = time.time()
     final_result = ""
@@ -26,7 +26,7 @@ def listen_for_command(timeout=10):
         while True:
             current_time = time.time()
             if (current_time - start_time) > timeout:
-                print("[🎤 Timeout reached]")
+                print("[🎤 Timeout reached]", flush=True)
                 break
             
             try:
