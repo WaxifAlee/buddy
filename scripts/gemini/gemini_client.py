@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()  # Loads from .env
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+GEMINI_URL = os.getenv("GEMINI_URL")
 
 def ask_gemini(prompt: str) -> str:
     if not GEMINI_API_KEY:
