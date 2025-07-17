@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/core";
+
+import "./App.css"; // Create this for styling
 
 function App() {
   const [status, setStatus] = useState("Initializing...");
@@ -8,14 +9,18 @@ function App() {
   const [buddyResponse, setBuddyResponse] = useState("");
   const [errors, setErrors] = useState("");
   const [isConnected, setIsConnected] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
     const setupListeners = async () => {
       const unlistenStatus = await listen("buddy-status", (event) => {
         const payload = event.payload as any;
         console.log("Status event received:", payload);
-        setStatus(`${payload.status}: ${payload.message}`);
+        setStatus(payload.message || "");
         setIsConnected(true);
+        setIsThinking(payload.status === "thinking");
+        setIsListening(payload.status === "listening");
       });
 
       const unlistenUserInput = await listen("user-input", (event) => {
@@ -28,12 +33,14 @@ function App() {
         const payload = event.payload as any;
         console.log("Buddy response event received:", payload);
         setBuddyResponse(payload.response);
+        setIsThinking(false);
       });
 
       const unlistenBuddyError = await listen("buddy-error", (event) => {
         const payload = event.payload as any;
         console.log("Buddy error event received:", payload);
         setErrors(payload.error);
+        setIsThinking(false);
       });
 
       const unlistenPythonOutput = await listen("python-output", (event) => {
@@ -44,7 +51,6 @@ function App() {
         console.error("[Python Error]", event.payload);
       });
 
-      // Return cleanup function
       return () => {
         unlistenStatus();
         unlistenUserInput();
@@ -58,43 +64,55 @@ function App() {
     setupListeners();
   }, []);
 
-  const testEvents = () => {
-    console.log("Testing events...");
-    // Simulate the events that should be coming from Python
-    setStatus("testing: Manual test initiated");
-    setTimeout(() => setUserInput("Hello Buddy"), 1000);
-    setTimeout(() => setBuddyResponse("Hello! How can I help you?"), 2000);
-  };
-
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
-      <h1>🧠 Buddy AI</h1>
-      <p>
-        <strong>Connection:</strong>{" "}
-        <span style={{ color: isConnected ? "green" : "red" }}>
-          {isConnected ? "Connected" : "Disconnected"}
-        </span>
-      </p>
-      <p>
-        <strong>Status:</strong> {status}
-      </p>
-      <p>
-        <strong>You said:</strong> {userInput}
-      </p>
-      <p>
-        <strong>Buddy replied:</strong> {buddyResponse}
-      </p>
-      {errors && (
-        <p style={{ color: "red" }}>
-          <strong>Error:</strong> {errors}
+    <div className="app">
+      <div className="glass-container">
+        <h1 className="logo">🧠 Buddy AI</h1>
+        <p>
+          <strong>Connection:</strong>{" "}
+          <span
+            className={isConnected ? "status-connected" : "status-disconnected"}
+          >
+            {isConnected ? "Connected" : "Disconnected"}
+          </span>
         </p>
-      )}
-      <button
-        onClick={testEvents}
-        style={{ margin: "10px", padding: "10px 20px" }}
-      >
-        Test Events
-      </button>
+
+        <p>
+          <strong>Status:</strong> {status}
+        </p>
+
+        {isListening && (
+          <div className="waveform">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        )}
+
+        <p>
+          <strong>You said:</strong> {userInput}
+        </p>
+
+        <p>
+          <strong>Buddy replied:</strong>{" "}
+          {isThinking ? (
+            <span className="dots">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          ) : (
+            buddyResponse
+          )}
+        </p>
+
+        {errors && (
+          <p className="error">
+            <strong>Error:</strong> {errors}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
