@@ -8,7 +8,7 @@ Welcome to **Buddy**, a smart, voice-activated AI assistant for your desktop. De
 
 ## 🤖 A look at our Buddy
 
-![ScreenShot](https://github.com/WaxifAlee/buddy/public/BuddyAiScreenShot.png?raw=true)
+![ScreenShot](public/BuddyAiScreenShot.png)
 
 ## 🎯 Key Features
 
